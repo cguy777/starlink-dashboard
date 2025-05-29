@@ -1,0 +1,7 @@
+.project
+/.settings
+.classpath
+*.class
+/target/protoc-dependencies
+target/classes/META-INF/maven/fibrous.starlink/starlink-interface/pom.properties
+/target/protoc-plugins
