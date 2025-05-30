@@ -116,8 +116,8 @@ public class StarlinkClient {
 			Date date = new Date(unixEpochTimeMS);
 			
 			String formattedTime = format.format(date);
-			System.out.println("\tGPS TIME (ZULU):\t\t " + formattedTime);
-			System.out.println("\tRaw GPS EPOCH TIME (SECONDS):\t " + (long) location.getGpsTimeS());
+			System.out.println("\tGPS TIME (zulu):\t\t " + formattedTime);
+			System.out.println("\tRAW GPS EPOCH TIME (seconds):\t " + (long) location.getGpsTimeS());
 		}
 		System.out.println();
 		
