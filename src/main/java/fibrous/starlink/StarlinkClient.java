@@ -18,6 +18,7 @@ import SpaceX.API.Device.DeviceOuterClass.DishGetDiagnosticsResponse.Disablement
 import SpaceX.API.Device.DeviceOuterClass.DishGetDiagnosticsResponse.Location;
 import SpaceX.API.Device.DeviceOuterClass.DishGetDiagnosticsResponse.TestResult;
 import SpaceX.API.Device.DeviceOuterClass.DishGetDiagnosticsResponse.TestResultCode;
+import SpaceX.API.Device.DeviceOuterClass.GetDiagnosticsRequest;
 import SpaceX.API.Device.DeviceOuterClass.Response;
 import SpaceX.API.Device.DeviceOuterClass.ToDevice;
 import SpaceX.API.Device.DeviceOuterClass.WifiGetDiagnosticsResponse;
@@ -28,14 +29,20 @@ import io.grpc.ManagedChannel;
 
 public class StarlinkClient {
 	
-	DeviceGrpc.DeviceBlockingV2Stub blockingStub;
+	DeviceGrpc.DeviceBlockingStub blockingStub;
 	
 	public StarlinkClient(Channel channel) {
-		blockingStub = DeviceGrpc.newBlockingV2Stub(channel);
+		blockingStub = DeviceGrpc.newBlockingStub(channel);
 	}
 	
 	public void getDiagnostics() throws ParseException {
-		ToDevice diagReq = ToDevice.newBuilder().build();		
+		ToDevice diagReq = ToDevice.newBuilder()
+				.setRequest(SpaceX.API.Device.DeviceOuterClass.Request
+						.newBuilder()
+						.setGetDiagnostics(GetDiagnosticsRequest.newBuilder()
+								.build())
+						.build())
+				.build();
 		Response diagResp = blockingStub.handle(diagReq.getRequest());
 		
 		DishGetDiagnosticsResponse dishDiags = diagResp.getDishGetDiagnostics();

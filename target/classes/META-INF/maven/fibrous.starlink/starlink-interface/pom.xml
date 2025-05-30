@@ -5,8 +5,8 @@
   <version>0.0.1-SNAPSHOT</version>
   
 	<properties>
-        <protobuf.version>3.6.1</protobuf.version>
-        <grpc.version>1.15.1</grpc.version>
+        <protobuf.version>4.24.4</protobuf.version>
+        <grpc.version>1.60.0</grpc.version>
     </properties>
 
     <dependencies>
@@ -21,20 +21,20 @@
     
 		<dependency>
 	  		<groupId>io.grpc</groupId>
-	  		<artifactId>grpc-netty-shaded</artifactId>
-	  		<version>1.72.0</version>
+	  		<artifactId>grpc-netty</artifactId>
+	  		<version>1.60.0</version>
 	  		<scope>runtime</scope>
 		</dependency>
 		
 		<dependency>
 	  		<groupId>io.grpc</groupId>
 	  		<artifactId>grpc-protobuf</artifactId>
-	  		<version>1.72.0</version>
+	  		<version>1.60.0</version>
 		</dependency>
 		<dependency>
 	  		<groupId>io.grpc</groupId>
 	  		<artifactId>grpc-stub</artifactId>
-	  		<version>1.72.0</version>
+	  		<version>1.60.0</version>
 		</dependency>
 		<dependency> <!-- necessary for Java 9+ -->
 	  		<groupId>org.apache.tomcat</groupId>
@@ -61,7 +61,7 @@
 				<configuration>
 					<protocArtifact>com.google.protobuf:protoc:3.25.5:exe:${os.detected.classifier}</protocArtifact>
 					<pluginId>grpc-java</pluginId>
-					<pluginArtifact>io.grpc:protoc-gen-grpc-java:1.72.0:exe:${os.detected.classifier}</pluginArtifact>
+					<pluginArtifact>io.grpc:protoc-gen-grpc-java:1.60.0:exe:${os.detected.classifier}</pluginArtifact>
 				</configuration>
 				<executions>
 					<execution>
