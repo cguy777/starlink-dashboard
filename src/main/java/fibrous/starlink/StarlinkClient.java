@@ -3,14 +3,12 @@ package fibrous.starlink;
 import java.util.Date;
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
-import com.google.rpc.context.AttributeContext.Request;
-
 import SpaceX.API.Device.DeviceGrpc;
+import SpaceX.API.Device.DeviceOuterClass;
 import SpaceX.API.Device.DeviceOuterClass.DishGetDiagnosticsResponse;
 import SpaceX.API.Device.DeviceOuterClass.DishGetDiagnosticsResponse.Alerts;
 import SpaceX.API.Device.DeviceOuterClass.DishGetDiagnosticsResponse.AlignmentStats;
@@ -37,12 +35,13 @@ public class StarlinkClient {
 	
 	public void getDiagnostics() throws ParseException {
 		ToDevice diagReq = ToDevice.newBuilder()
-				.setRequest(SpaceX.API.Device.DeviceOuterClass.Request
+				.setRequest(DeviceOuterClass.Request
 						.newBuilder()
 						.setGetDiagnostics(GetDiagnosticsRequest.newBuilder()
 								.build())
 						.build())
 				.build();
+		
 		Response diagResp = blockingStub.handle(diagReq.getRequest());
 		
 		DishGetDiagnosticsResponse dishDiags = diagResp.getDishGetDiagnostics();
