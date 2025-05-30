@@ -85,6 +85,7 @@ public class StarlinkTestServer {
 					.setId("1234567")
 					.setHardwareVersion("1.2.3")
 					.setSoftwareVersion("4.5.6")
+					//I believe this is actually in seconds and not hours.  I received 18000 in an actual test which would be 5 hours converted to seconds.
 					.setUtcOffsetS(-5)
 					.setHardwareSelfTest(
 							TestResult.FAILED)
