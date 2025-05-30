@@ -14,9 +14,13 @@ import SpaceX.API.Device.DeviceOuterClass.DishGetDiagnosticsResponse.Disablement
 import SpaceX.API.Device.DeviceOuterClass.DishGetDiagnosticsResponse.Location;
 import SpaceX.API.Device.DeviceOuterClass.DishGetDiagnosticsResponse.TestResult;
 import SpaceX.API.Device.DeviceOuterClass.DishGetDiagnosticsResponse.TestResultCode;
+import SpaceX.API.Device.DeviceOuterClass.GetDiagnosticsRequest;
 import io.grpc.Grpc;
 import io.grpc.InsecureServerCredentials;
+import io.grpc.Metadata;
 import io.grpc.Server;
+import io.grpc.Status;
+import io.grpc.protobuf.ProtoUtils;
 
 public class StarlinkTestServer {
 	
@@ -75,6 +79,13 @@ public class StarlinkTestServer {
 		
 		@Override
 		public void handle(DeviceOuterClass.Request request, io.grpc.stub.StreamObserver<DeviceOuterClass.Response> responseObserver) {
+			
+			//Missing DeviceOuterClass.Request object
+			if(request == DeviceOuterClass.Request.getDefaultInstance()) {
+				responseObserver.onError(Status.UNIMPLEMENTED.withDescription("gRPC call is incomplete.  A part of the request is missing.  Double check:\nRequest { \n\tGetDiagnosticsRequest {}\n} is being sent. //NSM").asRuntimeException());
+				return;
+			}
+			
 			Date jan_01_70 = new Date("01/01/70 00:00:00");
 			Date jan_06_80 = new Date("01/06/80 00:00:00");
 			long gpsEpochDiffMS = jan_06_80.getTime() - jan_01_70.getTime();
