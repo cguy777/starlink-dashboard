@@ -94,8 +94,8 @@ public class StarlinkClient {
 		//LOCATION
 		DateFormat format = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.MEDIUM);
 		format.setTimeZone(TimeZone.getTimeZone("ZULU"));
-		Date jan_01_70 = new Date(0);
-		Date jan_06_80 = new Date(315964800);
+		Date jan_01_70 = new Date("01/01/70 00:00:00");
+		Date jan_06_80 = new Date("01/06/80 00:00:00");
 		long gpsEpochDiffMS = jan_06_80.getTime() - jan_01_70.getTime();
 		System.out.println("LOCATION:");
 		Location location =  dishDiags.getLocation();

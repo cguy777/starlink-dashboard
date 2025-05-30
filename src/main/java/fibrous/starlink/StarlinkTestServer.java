@@ -1,8 +1,7 @@
 package fibrous.starlink;
 
 import java.io.IOException;
-import java.sql.Date;
-import java.sql.Time;
+import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -76,8 +75,8 @@ public class StarlinkTestServer {
 		
 		@Override
 		public void handle(DeviceOuterClass.Request request, io.grpc.stub.StreamObserver<DeviceOuterClass.Response> responseObserver) {
-			Date jan_01_70 = Date.valueOf("1970-01-01");
-			Date jan_06_80 = Date.valueOf("1980-01-06");
+			Date jan_01_70 = new Date("01/01/70 00:00:00");
+			Date jan_06_80 = new Date("01/06/80 00:00:00");
 			long gpsEpochDiffMS = jan_06_80.getTime() - jan_01_70.getTime();
 			
 			//Can only send one as they are on separate servers (9200/9000) and joined together with "oneof"
