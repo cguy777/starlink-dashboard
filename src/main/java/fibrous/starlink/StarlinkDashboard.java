@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -33,9 +34,7 @@ public class StarlinkDashboard {
 	JPanel statusPanel;
 		JPanel hwPOSTCodesPanel;
 			JLabel hwPOSTLabel;
-			JList<String> hwPOSTList;
 		JPanel alertPanel;
-			JList<String> alertList;
 	
 	JPanel alignmentPanel;
 		JLabel azLabel;
@@ -49,9 +48,8 @@ public class StarlinkDashboard {
 	
 	public StarlinkDashboard() {
 		mainFrame = new JFrame("Starlink Dashboard");
-		mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainFrame.setSize(640, 480);
-		mainFrame.setVisible(true);
 		mainPanel = new JPanel(new BorderLayout());
 		mainFrame.add(mainPanel);
 		
@@ -70,17 +68,15 @@ public class StarlinkDashboard {
 		statusPanel = new JPanel(new GridLayout(1, 0));
 		statusPanel.setBorder(BorderFactory.createTitledBorder(null, "Hardware Status", TitledBorder.CENTER, TitledBorder.TOP));
 		alertPanel = new JPanel();
+		alertPanel.setLayout(new BoxLayout(alertPanel, BoxLayout.Y_AXIS));
 		alertPanel.setBorder(BorderFactory.createTitledBorder(null, "Alerts", TitledBorder.CENTER, TitledBorder.TOP));
-		alertList = new JList<>();
-		alertPanel.add(alertList);
 		setAlerts(new ArrayList<String>());
 		statusPanel.add(alertPanel);
-		hwPOSTCodesPanel = new JPanel(new BorderLayout());
+		hwPOSTCodesPanel = new JPanel();
+		hwPOSTCodesPanel.setLayout(new BoxLayout(hwPOSTCodesPanel, BoxLayout.Y_AXIS));
 		hwPOSTCodesPanel.setBorder(BorderFactory.createTitledBorder(null, "Power On Self Test", TitledBorder.CENTER, TitledBorder.TOP));
 		hwPOSTLabel = new JLabel("POST Result: ");
 		hwPOSTLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		hwPOSTList = new JList<>();
-		hwPOSTCodesPanel.add(hwPOSTLabel, BorderLayout.NORTH);
 		setPOSTCodes(new ArrayList<String>());
 		statusPanel.add(hwPOSTCodesPanel);
 		mainFrame.add(statusPanel, BorderLayout.CENTER);
@@ -97,6 +93,8 @@ public class StarlinkDashboard {
 		alignmentPanel.add(desElLabel);
 		setAlignmentInfo("", "", "", "");
 		//mainFrame.add(alignmentPanel, BorderLayout.EAST);
+		
+		mainFrame.setVisible(true);
 		
 		client = new StarlinkClient();
 		performUpdate();
@@ -116,13 +114,14 @@ public class StarlinkDashboard {
 	
 	public void setAlerts(ArrayList<String> alerts) {
 		alertPanel.removeAll();
+		//alertPanel.add(hwPOSTLabel);
 		if(alerts.isEmpty()) {
 			alertPanel.add(new JLabel("No active alerts"));
 			return;
 		}
 		
-		alertList = new JList(alerts.toArray(new String[] {}));
-		alertPanel.add(alertList);
+		for(int i = 0; i < alerts.size(); i++)
+			alertPanel.add(new JLabel(alerts.get(i)));
 	}
 	
 	public void setAlignmentInfo(String az, String desAz, String el, String desEl) {
@@ -138,14 +137,17 @@ public class StarlinkDashboard {
 	
 	
 	public void setPOSTCodes(ArrayList<String> codes) {
-		hwPOSTCodesPanel.remove(hwPOSTList);
+		hwPOSTCodesPanel.removeAll();
+		hwPOSTCodesPanel.add(hwPOSTLabel);
 		if(codes.isEmpty()) {
-			//hwPOSTCodesPanel.add(new JLabel("No codes present"));
+			hwPOSTCodesPanel.add(new JLabel("No codes present"));
 			return;
 		}
 		
-		hwPOSTList = new JList(codes.toArray(new String[] {}));
-		hwPOSTCodesPanel.add(hwPOSTList);
+		for(int i = 0; i < codes.size(); i++) {
+			JLabel codeLabel = new JLabel(codes.get(i));
+			hwPOSTCodesPanel.add(codeLabel);
+		}
 	}
 	
 	public void performUpdate() {
