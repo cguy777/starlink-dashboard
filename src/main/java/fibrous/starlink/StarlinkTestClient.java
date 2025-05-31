@@ -71,31 +71,32 @@ public class StarlinkTestClient {
 		System.out.println("PRESENT ALERTS:");
 		Alerts alerts = dishDiags.getAlerts();
 		if(alerts.getDishIsHeating())
-			System.out.println("\t-dish is heating");
+			System.out.println("\tdish is heating");
 		if(alerts.getDishThermalThrottle())
-			System.out.println("\t-cpu thermal throttle");
+			System.out.println("\tcpu thermal throttle");
 		if(alerts.getDishThermalShutdown())
-			System.out.println("\t-dish thermal shutdown");
+			System.out.println("\tdish thermal shutdown");
 		if(alerts.getPowerSupplyThermalThrottle())
-			System.out.println("\t-power supply thermal throttle");
+			System.out.println("\tpower supply thermal throttle");
 		if(alerts.getMotorsStuck())
-			System.out.println("\t-dish motors stuck");
+			System.out.println("\tdish motors stuck");
 		if(alerts.getMastNotNearVertical())
-			System.out.println("\t-dish not oriented near-vertically");
+			System.out.println("\tdish not oriented near-vertically");
 		if(alerts.getSlowEthernetSpeeds())
-			System.out.println("\t-slow negotiated ethernet speed");
+			System.out.println("\tslow negotiated ethernet speed");
 		if(alerts.getSoftwareInstallPending())
-			System.out.println("\t-software install pending");
+			System.out.println("\tsoftware install pending");
 		if(alerts.getMovingTooFastForPolicy())
-			System.out.println("\t-moving to fast for policy");
+			System.out.println("\tmoving to fast for policy");
 		if(alerts.getObstructed())
-			System.out.println("\t-obstructed");
+			System.out.println("\tobstructed");
 		System.out.println();
 		
 		//DISABLEMENT CODE
 		DisablementCode disableCode = dishDiags.getDisablementCode();
 		System.out.println("DISABLEMENT CODE (OKAY means no disablement code present):");
 		System.out.println("\t" + disableCode);
+		System.out.println();
 		
 		//LOCATION
 		DateFormat format = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.MEDIUM);

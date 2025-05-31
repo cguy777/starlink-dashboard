@@ -1,7 +1,11 @@
 package fibrous.starlink;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Window.Type;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,23 +14,33 @@ import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JMenuBar;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
 
 import SpaceX.API.Device.DeviceOuterClass.DishGetDiagnosticsResponse;
 import SpaceX.API.Device.DeviceOuterClass.DishGetDiagnosticsResponse.Alerts;
+import SpaceX.API.Device.DeviceOuterClass.DishGetDiagnosticsResponse.DisablementCode;
 import SpaceX.API.Device.DeviceOuterClass.DishGetDiagnosticsResponse.TestResultCode;
+import io.grpc.StatusRuntimeException;
 
 public class StarlinkDashboard {
 	
 	StarlinkClient client;
+	boolean updateMainPanel = false;
+	volatile DishGetDiagnosticsResponse lastDishResponse = null;
 	
 	JFrame mainFrame;
 		JPanel mainPanel;
+		DashboardMenuBar menuBar;
 	
 	JPanel infoPanel;
+		JLabel connectedLabel;
 		JLabel idLabel;
 		JLabel hwVerLabel;
 		JLabel swVerLabel;
@@ -35,12 +49,20 @@ public class StarlinkDashboard {
 		JPanel hwPOSTCodesPanel;
 			JLabel hwPOSTLabel;
 		JPanel alertPanel;
+		
+	JPanel disablementPanel;
+		JLabel disablementLabel;
+		JLabel disablementReasonLabel;
 	
 	JPanel alignmentPanel;
 		JLabel azLabel;
 		JLabel desAzLabel;
 		JLabel elLabel;
 		JLabel desElLabel;
+		
+	JFrame responseTextFrame;
+		JScrollPane responseTextScroll;
+			JTextArea responseTextArea;
 	
 	public static void main(String[]args) {
 		StarlinkDashboard dashboard = new StarlinkDashboard();
@@ -50,19 +72,23 @@ public class StarlinkDashboard {
 		mainFrame = new JFrame("Starlink Dashboard");
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainFrame.setSize(640, 480);
+		menuBar = new DashboardMenuBar(this);
 		mainPanel = new JPanel(new BorderLayout());
+		mainFrame.setJMenuBar(menuBar);
 		mainFrame.add(mainPanel);
 		
 		//INFO PANEL
 		infoPanel = new JPanel(new GridLayout(0, 1));
 		infoPanel.setBorder(BorderFactory.createTitledBorder(null, "Dish Information", TitledBorder.LEADING, TitledBorder.TOP));
+		connectedLabel = new JLabel("");
 		idLabel = new JLabel("ID: ");
 		hwVerLabel = new JLabel("HW Version: ");
 		swVerLabel = new JLabel("SW Version: ");
+		infoPanel.add(connectedLabel);
 		infoPanel.add(idLabel);
 		infoPanel.add(hwVerLabel);
 		infoPanel.add(swVerLabel);
-		mainFrame.add(infoPanel, BorderLayout.NORTH);
+		mainPanel.add(infoPanel, BorderLayout.NORTH);
 		
 		//STATUS PANEL
 		statusPanel = new JPanel(new GridLayout(1, 0));
@@ -79,7 +105,19 @@ public class StarlinkDashboard {
 		hwPOSTLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		setPOSTCodes(new ArrayList<String>());
 		statusPanel.add(hwPOSTCodesPanel);
-		mainFrame.add(statusPanel, BorderLayout.CENTER);
+		mainPanel.add(statusPanel, BorderLayout.CENTER);
+		
+		//DISABLEMENT PANEL
+		disablementPanel = new JPanel();
+		//disablementPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+		disablementLabel = new JLabel("THIS STARLINK DISH IS DISABLED");
+		disablementLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		disablementLabel.setFont(new Font(Font.DIALOG, Font.BOLD, 24));
+		disablementReasonLabel = new JLabel();
+		disablementReasonLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		disablementReasonLabel.setFont(new Font(Font.DIALOG, Font.BOLD, 24));
+		disablementPanel.add(disablementLabel);
+		disablementPanel.add(disablementReasonLabel);
 		
 		//ALIGNMENT PANEL
 		alignmentPanel = new JPanel(new GridLayout(0, 1));
@@ -92,12 +130,34 @@ public class StarlinkDashboard {
 		alignmentPanel.add(elLabel);
 		alignmentPanel.add(desElLabel);
 		setAlignmentInfo("", "", "", "");
-		//mainFrame.add(alignmentPanel, BorderLayout.EAST);
+		//mainPanel.add(alignmentPanel, BorderLayout.EAST);
+		
+		//RAW RESPONSE FRAME
+		responseTextFrame = new JFrame("Latest Dish Response");
+		responseTextFrame.setSize(600, 800);
+		responseTextFrame.setType(Type.UTILITY);
+		responseTextArea = new JTextArea();
+		responseTextArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+		responseTextArea.setEditable(false);
+		responseTextScroll = new JScrollPane(responseTextArea);
+		responseTextFrame.add(responseTextScroll);
+		responseTextFrame.setVisible(false);
 		
 		mainFrame.setVisible(true);
 		
 		client = new StarlinkClient();
-		performUpdate();
+		DiagnosticsUpdater updater = new DiagnosticsUpdater(this, 5000);
+		Thread.ofVirtual().start(updater);
+	}
+	
+	public void setIsConnected(boolean connected) {
+		if(connected) {
+			connectedLabel.setText("CONNECTED TO STARLINK DISH");
+			connectedLabel.setForeground(Color.DARK_GRAY);
+		} else {
+			connectedLabel.setText("CANNOT COMMUNICATE WITH DISH");
+			connectedLabel.setForeground(Color.red);
+		}
 	}
 	
 	public void setID(String id) {
@@ -150,13 +210,55 @@ public class StarlinkDashboard {
 		}
 	}
 	
+	public void setDisablementCode(DisablementCode disablement) {
+		//Don't display disablement code if there's no disablement
+		if(disablement == DisablementCode.OKAY) {
+			if(disablementPanel.getParent() != null) {
+				mainPanel.remove(disablementPanel);
+				mainPanel.add(statusPanel, BorderLayout.CENTER);
+				updateMainPanel = true;
+			}
+		} else {
+			if(statusPanel.getParent() != null) {
+				mainPanel.remove(statusPanel);
+				mainPanel.add(disablementPanel, BorderLayout.CENTER);
+				updateMainPanel = true;
+			}
+			
+			disablementReasonLabel.setText("Reason: " + disablement.toString());
+		}
+		
+		if(updateMainPanel) {
+			mainPanel.revalidate();
+			mainPanel.repaint();
+			updateMainPanel = false;
+		}
+	}
+	
+	public synchronized DishGetDiagnosticsResponse accessLastResponse() {
+		return lastDishResponse;
+	}
+	
 	public void performUpdate() {
-		DishGetDiagnosticsResponse diags = client.getDishDiagnostics();
+		DishGetDiagnosticsResponse diags = null;
+		try {
+			diags = client.getDishDiagnostics();
+			lastDishResponse = diags;
+		} catch(StatusRuntimeException e) {
+			if(e.getMessage().contains("io exception")) {
+				setIsConnected(false);
+				return;
+			}
+		}
 		
 		//SET INFO
+		setIsConnected(true);
 		setID(diags.getId());
 		setHWVersion(diags.getHardwareVersion());
 		setSWVersion(diags.getSoftwareVersion());
+		
+		//SET DISABLEMENT CODE
+		setDisablementCode(diags.getDisablementCode());
 		
 		//SET ALERTS
 		ArrayList<String> alertsList = new ArrayList<>();
@@ -190,5 +292,42 @@ public class StarlinkDashboard {
 		for(int i = 0; i < codeList.size(); i++)
 			postCodes.add(codeList.get(i).name());
 		setPOSTCodes(postCodes);
+	}
+	
+	public void showResponseText() {
+		//Check if there's anything to show
+		if(lastDishResponse == null) {
+			JOptionPane.showMessageDialog(null, "No information has been received from the dish", "Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		
+		responseTextArea.setText(client.getDishDiagnosticsString());
+		responseTextFrame.setVisible(true);
+	}
+}
+
+class DiagnosticsUpdater implements Runnable {
+
+	volatile boolean quit = false;
+	
+	StarlinkDashboard dashboard;
+	int updateInterval;
+	
+	public DiagnosticsUpdater(StarlinkDashboard dashboard, int updateInterval) {
+		this.dashboard = dashboard;
+		this.updateInterval = updateInterval;
+	}
+	
+	@Override
+	public void run() {
+		while(!quit) {
+			dashboard.performUpdate();
+			
+			try {
+				Thread.sleep(updateInterval);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }
