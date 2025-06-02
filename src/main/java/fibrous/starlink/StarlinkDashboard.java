@@ -33,15 +33,14 @@ import io.grpc.StatusRuntimeException;
 public class StarlinkDashboard {
 	
 	StarlinkClient client;
-	boolean updatePanels = true;
 	boolean prevConnectedState = false;
 	volatile DishGetDiagnosticsResponse lastDishResponse = null;
-	boolean firstUpdate = true;
 	
 	ArrayList<String> prevAlerts;
 	TestResult prevPOSTResult;
 	ArrayList<String> prevPOSTCodes;
 	DisablementCode prevDisableCode;
+	boolean firstUpdate = true;
 	
 	JFrame mainFrame;
 		JPanel mainPanel;
@@ -122,7 +121,8 @@ public class StarlinkDashboard {
 		hwPOSTLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		hwPOSTCodesPanel.add(hwPOSTLabel);
 		statusPanel.add(hwPOSTCodesPanel);
-		//mainPanel.add(statusPanel, BorderLayout.CENTER);
+		statusPanel.setVisible(false);
+		mainPanel.add(statusPanel, BorderLayout.CENTER);
 		
 		//DISABLEMENT PANEL
 		disablementPanel = new JPanel();
@@ -135,6 +135,8 @@ public class StarlinkDashboard {
 		disablementReasonLabel.setFont(new Font(Font.DIALOG, Font.BOLD, 24));
 		disablementPanel.add(disablementLabel);
 		disablementPanel.add(disablementReasonLabel);
+		disablementPanel.setVisible(false);
+		mainPanel.add(disablementPanel, BorderLayout.CENTER);
 		
 		//ALIGNMENT PANEL
 		alignmentPanel = new JPanel(new GridLayout(0, 1));
@@ -200,8 +202,6 @@ public class StarlinkDashboard {
 		if(connected) {
 			connectedLabel.setText("CONNECTED TO STARLINK DISH");
 			connectedLabel.setForeground(Color.DARK_GRAY);
-			mainPanel.add(statusPanel);
-			mainPanel.add(disablementPanel);
 		} else {
 			connectedLabel.setText("CANNOT COMMUNICATE WITH DISH");
 			connectedLabel.setForeground(Color.red);
@@ -209,7 +209,6 @@ public class StarlinkDashboard {
 		}
 		
 		prevConnectedState = connected;
-		updatePanels = true;
 	}
 	
 	public void setID(String id) {
@@ -239,7 +238,8 @@ public class StarlinkDashboard {
 		for(int i = 0; i < alerts.size(); i++)
 			alertPanel.add(new JLabel(alerts.get(i)));
 		
-		updatePanels = true;
+		mainPanel.revalidate();
+		mainPanel.repaint();
 	}
 	
 	public void setAlignmentInfo(String az, String desAz, String el, String desEl) {
@@ -257,7 +257,8 @@ public class StarlinkDashboard {
 		hwPOSTLabel.setText("POST Result: " + result.toString());
 		prevPOSTResult = result;
 		
-		updatePanels = true;
+		mainPanel.revalidate();
+		mainPanel.repaint();
 	}
 	
 	
@@ -280,7 +281,9 @@ public class StarlinkDashboard {
 		}
 		
 		prevPOSTCodes = codes;
-		updatePanels = true;
+		
+		mainPanel.revalidate();
+		mainPanel.repaint();
 	}
 	
 	public void setDisablementCode(DisablementCode disablement) {
@@ -289,16 +292,18 @@ public class StarlinkDashboard {
 			return;
 		
 		if(disablement == DisablementCode.OKAY) {
-			mainPanel.remove(disablementPanel);
-			mainPanel.add(statusPanel, BorderLayout.CENTER);
+			disablementPanel.setVisible(false);
+			statusPanel.setVisible(true);
 		} else {
-			mainPanel.remove(statusPanel);
-			mainPanel.add(disablementPanel, BorderLayout.CENTER);
+			statusPanel.setVisible(false);
+			disablementPanel.setVisible(true);
 			disablementReasonLabel.setText("Reason: " + disablement.toString());
 		}
 		
-		updatePanels = true;		
 		prevDisableCode = disablement;
+		
+		mainPanel.revalidate();
+		mainPanel.repaint();
 	}
 	
 	public synchronized DishGetDiagnosticsResponse accessLastResponse() {
@@ -310,8 +315,8 @@ public class StarlinkDashboard {
 		setHWVersion("");
 		setSWVersion("");
 		
-		mainPanel.remove(statusPanel);
-		mainPanel.remove(disablementPanel);
+		statusPanel.setVisible(false);
+		disablementPanel.setVisible(false);
 	}
 	
 	public void performUpdate() {
@@ -322,16 +327,6 @@ public class StarlinkDashboard {
 		} catch(StatusRuntimeException e) {
 			if(e.getMessage().contains("io exception")) {
 				setIsConnected(false);
-				
-				if(updatePanels) {
-					mainPanel.revalidate();
-					mainPanel.repaint();
-					statusPanel.revalidate();
-					statusPanel.repaint();
-					alertPanel.revalidate();
-					alertPanel.repaint();
-					updatePanels = false;
-				}
 				
 				firstUpdate = false;
 				return;
@@ -379,16 +374,6 @@ public class StarlinkDashboard {
 		for(int i = 0; i < codeList.size(); i++)
 			postCodes.add(codeList.get(i).name());
 		setPOSTCodes(postCodes);
-		
-		if(updatePanels) {
-			mainPanel.revalidate();
-			mainPanel.repaint();
-			statusPanel.revalidate();
-			statusPanel.repaint();
-			alertPanel.revalidate();
-			alertPanel.repaint();
-			updatePanels = false;
-		}
 		
 		firstUpdate = false;
 	}
