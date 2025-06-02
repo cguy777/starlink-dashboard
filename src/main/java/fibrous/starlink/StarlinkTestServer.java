@@ -99,13 +99,13 @@ public class StarlinkTestServer {
 					//I believe this is actually in seconds and not hours.  I received 18000 in an actual test which would be 5 hours converted to seconds.
 					.setUtcOffsetS(-5)
 					.setHardwareSelfTest(
-							TestResult.FAILED)
+							TestResult.PASSED)
 					.addHardwareSelfTestCodes(TestResultCode.CPU_VOLTAGE)
 					.addHardwareSelfTestCodes(TestResultCode.TEMPERATURE)
 					.setAlerts(Alerts.newBuilder()
 							.setDishThermalThrottle(true)
 							.setObstructed(true))
-					.setDisablementCode(DisablementCode.CELL_IS_DISABLED)
+					.setDisablementCode(DisablementCode.OKAY)
 					.setLocation(Location.newBuilder()
 							.setEnabled(true)
 							.setLatitude(33.413791)
