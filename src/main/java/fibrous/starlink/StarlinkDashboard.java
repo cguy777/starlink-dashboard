@@ -34,6 +34,7 @@ public class StarlinkDashboard {
 	
 	StarlinkClient client;
 	boolean prevConnectedState = false;
+	boolean switchedConnectedState = false;
 	volatile DishGetDiagnosticsResponse lastDishResponse = null;
 	
 	ArrayList<String> prevAlerts;
@@ -41,6 +42,7 @@ public class StarlinkDashboard {
 	ArrayList<String> prevPOSTCodes;
 	DisablementCode prevDisableCode;
 	boolean firstUpdate = true;
+	boolean updatePanels = true;
 	
 	JFrame mainFrame;
 		JPanel mainPanel;
@@ -121,8 +123,8 @@ public class StarlinkDashboard {
 		hwPOSTLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		hwPOSTCodesPanel.add(hwPOSTLabel);
 		statusPanel.add(hwPOSTCodesPanel);
-		statusPanel.setVisible(false);
-		mainPanel.add(statusPanel, BorderLayout.CENTER);
+		statusPanel.setVisible(true);
+		//mainPanel.add(statusPanel, BorderLayout.CENTER);
 		
 		//DISABLEMENT PANEL
 		disablementPanel = new JPanel();
@@ -130,13 +132,15 @@ public class StarlinkDashboard {
 		disablementLabel = new JLabel("THIS STARLINK DISH IS DISABLED");
 		disablementLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		disablementLabel.setFont(new Font(Font.DIALOG, Font.BOLD, 24));
+		disablementLabel.setForeground(Color.red);
 		disablementReasonLabel = new JLabel();
 		disablementReasonLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		disablementReasonLabel.setFont(new Font(Font.DIALOG, Font.BOLD, 24));
+		disablementReasonLabel.setForeground(Color.red);
 		disablementPanel.add(disablementLabel);
 		disablementPanel.add(disablementReasonLabel);
-		disablementPanel.setVisible(false);
-		mainPanel.add(disablementPanel, BorderLayout.CENTER);
+		disablementPanel.setVisible(true);
+		//mainPanel.add(disablementPanel, BorderLayout.CENTER);
 		
 		//ALIGNMENT PANEL
 		alignmentPanel = new JPanel(new GridLayout(0, 1));
@@ -168,6 +172,9 @@ public class StarlinkDashboard {
 	}
 	
 	public boolean isSameAlerts(ArrayList<String> newAlerts) {
+		if(firstUpdate)
+			return false;
+		
 		//Easy quick check
 		if(newAlerts.size() != prevAlerts.size())
 			return false;
@@ -181,6 +188,9 @@ public class StarlinkDashboard {
 	}
 	
 	public boolean isSamePOSTCodes(ArrayList<String> newPOSTCodes) {
+		if(firstUpdate)
+			return false;
+		
 		//Easy quick check
 		if(newPOSTCodes.size() != prevPOSTCodes.size())
 			return false;
@@ -208,6 +218,7 @@ public class StarlinkDashboard {
 			zeroDisplay();
 		}
 		
+		switchedConnectedState = true;
 		prevConnectedState = connected;
 	}
 	
@@ -229,17 +240,17 @@ public class StarlinkDashboard {
 			return;
 		
 		alertPanel.removeAll();
-		//alertPanel.add(hwPOSTLabel);
-		if(alerts.isEmpty()) {
+		if(alerts.isEmpty())
 			alertPanel.add(new JLabel("No active alerts"));
-			return;
+		
+		for(int i = 0; i < alerts.size(); i++) {
+			JLabel alertLabel = new JLabel(alerts.get(i));
+			alertLabel.setForeground(Color.RED);
+			alertPanel.add(alertLabel);
 		}
 		
-		for(int i = 0; i < alerts.size(); i++)
-			alertPanel.add(new JLabel(alerts.get(i)));
-		
-		mainPanel.revalidate();
-		mainPanel.repaint();
+		prevAlerts = alerts;
+		updatePanels = true;
 	}
 	
 	public void setAlignmentInfo(String az, String desAz, String el, String desEl) {
@@ -251,14 +262,19 @@ public class StarlinkDashboard {
 	
 	public void setPOSTStatus(TestResult result) {
 		//Do nothing if nothing has changed
-		if(result == prevPOSTResult)
-			return;
+		if(!firstUpdate)
+			if(result == prevPOSTResult)
+				return;
 		
 		hwPOSTLabel.setText("POST Result: " + result.toString());
+		if(result == TestResult.FAILED)
+			hwPOSTLabel.setForeground(Color.red);
+		else
+			hwPOSTLabel.setForeground(Color.DARK_GRAY);
+		
 		prevPOSTResult = result;
 		
-		mainPanel.revalidate();
-		mainPanel.repaint();
+		updatePanels = true;
 	}
 	
 	
@@ -272,38 +288,38 @@ public class StarlinkDashboard {
 		
 		if(codes.isEmpty()) {
 			hwPOSTCodesPanel.add(new JLabel("No codes present"));
-			return;
 		}
 		
 		for(int i = 0; i < codes.size(); i++) {
 			JLabel codeLabel = new JLabel(codes.get(i));
+			codeLabel.setForeground(Color.red);
 			hwPOSTCodesPanel.add(codeLabel);
 		}
 		
 		prevPOSTCodes = codes;
 		
-		mainPanel.revalidate();
-		mainPanel.repaint();
+		updatePanels = true;
 	}
 	
 	public void setDisablementCode(DisablementCode disablement) {
 		//do nothing if it's the same code
 		if(disablement == prevDisableCode)
-			return;
+			if(!switchedConnectedState)
+				return;
 		
 		if(disablement == DisablementCode.OKAY) {
-			disablementPanel.setVisible(false);
-			statusPanel.setVisible(true);
+			mainPanel.remove(disablementPanel);
+			mainPanel.add(statusPanel, BorderLayout.CENTER);
 		} else {
-			statusPanel.setVisible(false);
-			disablementPanel.setVisible(true);
+			mainPanel.remove(statusPanel);
+			mainPanel.add(disablementPanel);
 			disablementReasonLabel.setText("Reason: " + disablement.toString());
 		}
 		
 		prevDisableCode = disablement;
 		
-		mainPanel.revalidate();
-		mainPanel.repaint();
+		switchedConnectedState = false;
+		updatePanels = true;
 	}
 	
 	public synchronized DishGetDiagnosticsResponse accessLastResponse() {
@@ -315,8 +331,10 @@ public class StarlinkDashboard {
 		setHWVersion("");
 		setSWVersion("");
 		
-		statusPanel.setVisible(false);
-		disablementPanel.setVisible(false);
+		mainPanel.remove(statusPanel);
+		mainPanel.remove(disablementPanel);
+		
+		updatePanels = true;
 	}
 	
 	public void performUpdate() {
@@ -329,6 +347,13 @@ public class StarlinkDashboard {
 				setIsConnected(false);
 				
 				firstUpdate = false;
+				
+				if(updatePanels) {
+					mainPanel.revalidate();
+					mainPanel.repaint();
+					updatePanels = false;
+				}
+				
 				return;
 			}
 		}
@@ -376,6 +401,12 @@ public class StarlinkDashboard {
 		setPOSTCodes(postCodes);
 		
 		firstUpdate = false;
+		
+		if(updatePanels) {
+			mainPanel.revalidate();
+			mainPanel.repaint();
+			updatePanels = false;
+		}
 	}
 	
 	public void showResponseText() {
