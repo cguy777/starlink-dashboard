@@ -41,7 +41,7 @@ public class About {
 	public static String getCopyrightMessage() {
 		return "Copyright (c) " +
 				About.COPYRIGHT_YEAR +
-				COPYRIGHT_HOLDER;
+				" " + COPYRIGHT_HOLDER;
 	}
 
 	public static String getAboutMessage() {
