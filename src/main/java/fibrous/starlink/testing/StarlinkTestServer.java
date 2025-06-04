@@ -107,9 +107,12 @@ public class StarlinkTestServer {
 		@Override
 		public void handle(DeviceOuterClass.Request request, io.grpc.stub.StreamObserver<DeviceOuterClass.Response> responseObserver) {
 			
+			//Uncomment this to simulate an unimplemented error
+			//request = DeviceOuterClass.Request.getDefaultInstance();
+			
 			//Missing DeviceOuterClass.Request object
 			if(request == DeviceOuterClass.Request.getDefaultInstance()) {
-				responseObserver.onError(Status.UNIMPLEMENTED.withDescription("gRPC call is incomplete.  A part of the request is missing.  Double check:\nRequest { \n\tGetDiagnosticsRequest {}\n} is being sent.").asRuntimeException());
+				responseObserver.onError(Status.UNIMPLEMENTED.withDescription("gRPC call is incomplete.  A part of the request is missing.  Double check:\nRequest { \n\tGetDiagnosticsRequest {}\n}\nis being sent.").asRuntimeException());
 				return;
 			}
 			
