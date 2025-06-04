@@ -1,8 +1,11 @@
 # Starlink Dashboard
-This is a simple java swing application that displays dish diagnostics provided from the dish's local gRPC server.  If you rely primarily on Starlink for internet, then you may not be able to log into Starlink's website to check the status of the dish if something seems wrong.  This application aims to provide you with diagnostics info as easily as possible
+This is a simple java swing application that displays dish diagnostics provided from the dish's local gRPC server.
+If you rely primarily on Starlink for internet, then you may not be able to log into Starlink's website to check the status of the dish if something seems wrong.
+This application aims to provide you with diagnostics info as easily as possible.
+NOTE: your Starlink service plan may limit your ability to use the dish's local gRPC server.
 
 ## Usage
-Directly connect your computer to the modem's ethernet connection.
+Directly connect your computer to the modem's ethernet connection (or properly network your connection using other methods in accordance with the information below).
 The dish's diagnostic server is always at the address 192.168.100.1 using port 9200, so your computer must be on that same network.
 I'm not sure how large the 192.168.100.0 network is, but most conventions would indicate that is a /24 network.
 I personally use 192.168.100.2 for my computer's IP address without issue.
@@ -17,4 +20,4 @@ There is another package, fibrous.starlink.testing, that contains a test server 
 When you perform mvn build, maven should automatically create the classes needed for the protobuf definition.
 
 ## Other Resources
-This application was built using info provided from SpaceX here: https://github.com/SpaceExplorationTechnologies/enterprise-api/tree/master/device-api
+This application was built using info provided from SpaceX here: https://github.com/SpaceExplorationTechnologies/enterprise-api/tree/master
