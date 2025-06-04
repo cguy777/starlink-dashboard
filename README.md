@@ -1,8 +1,9 @@
 # Starlink Dashboard
-This is a simple java swing application that displays dish diagnostics provided from the dish's local gRPC server.
+This is a simple application that displays dish diagnostics provided from the dish's local gRPC server.
 If you rely primarily on Starlink for internet, then you may not be able to log into Starlink's website to check the status of the dish if something seems wrong.
 This application aims to provide you with diagnostics info as easily as possible.
-NOTE: your Starlink service plan may limit your ability to use the dish's local gRPC server.
+NOTE: The model of your Starlink terminal, software version, or service plan may limit functionality of your dish's local gRPC server, thereby limiting the usefulness of this application.
+Always test things before you need them!
 
 ## Usage
 Directly connect your computer to the modem's ethernet connection (or properly network your connection using other methods in accordance with the information below).
