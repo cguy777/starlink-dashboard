@@ -7,6 +7,7 @@
 	<properties>
         <protobuf.version>4.24.4</protobuf.version>
         <grpc.version>1.60.0</grpc.version>
+        <maven.compiler.release>21</maven.compiler.release>
     </properties>
 
     <dependencies>

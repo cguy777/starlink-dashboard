@@ -14,6 +14,7 @@ If you select File -> Show response text, a new window will appear that provides
 Dependencies are managed using Maven.
 The main package, fibrous.starlink, contains the application specific classes, with StarlinkDashboard being the main one.
 There is another package, fibrous.starlink.testing, that contains a test server that runs on port 9200 to test against and provides a simulated diagnostic response.
+When you perform mvn build, maven should automatically create the classes needed for the protobuf definition.
 
 ## Other Resources
 This application was built using info provided from SpaceX here: https://github.com/SpaceExplorationTechnologies/enterprise-api/tree/master/device-api
