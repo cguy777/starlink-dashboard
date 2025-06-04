@@ -67,7 +67,7 @@ public class StarlinkClient {
 	volatile DishGetDiagnosticsResponse lastResponse;
 	
 	public StarlinkClient() {
-		channel = Grpc.newChannelBuilder(testSocketAddr, InsecureChannelCredentials.create()).build();
+		channel = Grpc.newChannelBuilder(dishSocketAddr, InsecureChannelCredentials.create()).build();
 		blockingStub = DeviceGrpc.newBlockingStub(channel);
 	}
 	
