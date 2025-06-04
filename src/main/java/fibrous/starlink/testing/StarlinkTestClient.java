@@ -1,4 +1,4 @@
-package fibrous.starlink;
+package fibrous.starlink.testing;
 
 import java.util.Date;
 import java.text.DateFormat;

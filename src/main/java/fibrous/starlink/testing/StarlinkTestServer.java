@@ -1,4 +1,4 @@
-package fibrous.starlink;
+package fibrous.starlink.testing;
 
 import java.io.IOException;
 import java.util.Date;
@@ -82,7 +82,7 @@ public class StarlinkTestServer {
 			
 			//Missing DeviceOuterClass.Request object
 			if(request == DeviceOuterClass.Request.getDefaultInstance()) {
-				responseObserver.onError(Status.UNIMPLEMENTED.withDescription("gRPC call is incomplete.  A part of the request is missing.  Double check:\nRequest { \n\tGetDiagnosticsRequest {}\n} is being sent. //NSM").asRuntimeException());
+				responseObserver.onError(Status.UNIMPLEMENTED.withDescription("gRPC call is incomplete.  A part of the request is missing.  Double check:\nRequest { \n\tGetDiagnosticsRequest {}\n} is being sent.").asRuntimeException());
 				return;
 			}
 			
@@ -91,6 +91,7 @@ public class StarlinkTestServer {
 			long gpsEpochDiffMS = jan_06_80.getTime() - jan_01_70.getTime();
 			
 			//Can only send one as they are on separate servers (9200/9000) and joined together with "oneof"
+			//But the purpose of this test server is primarily dish diagnostics, as I don't really use the supplied wifi capabilities.
 			//WifiGetDiagnosticsResponse wifiResponse = WifiGetDiagnosticsResponse.newBuilder().setId("WifiNetwork").build();
 			DishGetDiagnosticsResponse dishResponse = DishGetDiagnosticsResponse.newBuilder()
 					.setId("1234567")
@@ -102,9 +103,9 @@ public class StarlinkTestServer {
 							TestResult.PASSED)
 					//.addHardwareSelfTestCodes(TestResultCode.CPU_VOLTAGE)
 					//.addHardwareSelfTestCodes(TestResultCode.TEMPERATURE)
-					//.setAlerts(Alerts.newBuilder()
-						//	.setDishThermalThrottle(true)
-							//.setObstructed(true))
+					.setAlerts(Alerts.newBuilder()
+							.setDishThermalThrottle(true)
+							.setObstructed(true))
 					.setDisablementCode(DisablementCode.OKAY)
 					.setLocation(Location.newBuilder()
 							.setEnabled(true)

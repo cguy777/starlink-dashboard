@@ -71,7 +71,7 @@ public class StarlinkClient {
 		response += "SELF TEST STATUS CODES:" + "\n";
 		List<TestResultCode> returnedCodes = lastResponse.getHardwareSelfTestCodesList();
 		if(returnedCodes.size() == 0) {
-			response += "\tNone + \"\\n\"";
+			response += "\tNone \n";
 		} else {
 			for(int i = 0; i < returnedCodes.size(); i++)
 				response += "\t" + returnedCodes.get(i) + "\n";
@@ -79,29 +79,32 @@ public class StarlinkClient {
 		response += "\n";
 		
 		//ALERTS
+		String alertString = "";
 		response += "PRESENT ALERTS:\n";
 		Alerts alerts = lastResponse.getAlerts();
 		if(alerts.getDishIsHeating())
-			response += "\tdish is heating\n";
+			alertString += "\tdish is heating\n";
 		if(alerts.getDishThermalThrottle())
-			response += "\tcpu thermal throttle\n";
+			alertString += "\tcpu thermal throttle\n";
 		if(alerts.getDishThermalShutdown())
-			response += "\tdish thermal shutdown\n";
+			alertString += "\tdish thermal shutdown\n";
 		if(alerts.getPowerSupplyThermalThrottle())
-			response += "\tpower supply thermal throttle\n";
+			alertString += "\tpower supply thermal throttle\n";
 		if(alerts.getMotorsStuck())
-			response += "\tdish motors stuck\n";
+			alertString += "\tdish motors stuck\n";
 		if(alerts.getMastNotNearVertical())
-			response += "\tdish not oriented near-vertically\n";
+			alertString += "\tdish not oriented near-vertically\n";
 		if(alerts.getSlowEthernetSpeeds())
-			response += "\tslow negotiated ethernet speed\n";
+			alertString += "\tslow negotiated ethernet speed\n";
 		if(alerts.getSoftwareInstallPending())
-			response += "\tsoftware install pending\n";
+			alertString += "\tsoftware install pending\n";
 		if(alerts.getMovingTooFastForPolicy())
-			response += "\tmoving to fast for policy\n";
+			alertString += "\tmoving to fast for policy\n";
 		if(alerts.getObstructed())
-			response += "\tobstructed\n";
-		response += "\n";
+			alertString += "\tobstructed\n";
+		if(alertString.isEmpty())
+			alertString += "\tno alerts present\n";
+		response += alertString + "\n";
 		
 		//DISABLEMENT CODE
 		DisablementCode disableCode = lastResponse.getDisablementCode();

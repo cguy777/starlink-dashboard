@@ -1,1 +1,0 @@
-jpackage --input .\folder --name StarlinkDashboard --main-jar StarlinkDashboard.jar --main-class org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader --type app-image
