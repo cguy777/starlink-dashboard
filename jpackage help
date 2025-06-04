@@ -1,4 +1,6 @@
 This is how I build after exporting from eclipse using the StarlinkDashboard class as the run configuration.
+I use the "package required libraries into generated jar" option.
 This might be different if you are directly building using maven.
+Place the generated jar into a directory (E.g. starlinkdashboard).  Then, from the parent directory (the parent of starlinkdashboard), run the following command:
 
-jpackage --input .\folder-containing-jarfile --name StarlinkDashboard --main-jar StarlinkDashboard.jar --main-class org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader --type app-image
+jpackage --input .\starlinkdashboard --name StarlinkDashboard --main-jar StarlinkDashboard.jar --main-class org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader --type app-image
