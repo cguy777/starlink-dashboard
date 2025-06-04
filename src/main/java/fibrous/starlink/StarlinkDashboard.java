@@ -38,7 +38,9 @@ import java.awt.GridLayout;
 import java.awt.Window.Type;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -72,7 +74,7 @@ public class StarlinkDashboard {
 	boolean prevConnectedState = false;
 	boolean switchedConnectedState = false;
 	volatile DishGetDiagnosticsResponse lastDishResponse = null;
-	Date lastUpdate = null;
+	Date lastUpdateTime = null;
 	
 	ArrayList<String> prevAlerts;
 	TestResult prevPOSTResult;
@@ -99,6 +101,10 @@ public class StarlinkDashboard {
 	JPanel disablementPanel;
 		JLabel disablementLabel;
 		JLabel disablementReasonLabel;
+		
+	JPanel errorPanel;
+		JLabel errorLabel;
+		JLabel errorReasonLabel;
 	
 	JPanel alignmentPanel;
 		JLabel azLabel;
@@ -178,6 +184,21 @@ public class StarlinkDashboard {
 		disablementPanel.add(disablementReasonLabel);
 		disablementPanel.setVisible(true);
 		
+		//ERROR PANEL
+		errorPanel = new JPanel();
+		errorLabel = new JLabel("ERROR");
+		errorLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		errorLabel.setFont(new Font(Font.DIALOG, Font.BOLD, 24));
+		errorLabel.setForeground(Color.red);
+		errorReasonLabel = new JLabel();
+		errorReasonLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		errorReasonLabel.setFont(new Font(Font.DIALOG, Font.BOLD, 12));
+		//errorReasonLabel.setForeground(Color.red);
+		errorPanel.add(errorLabel);
+		errorPanel.add(errorReasonLabel);
+		errorPanel.setVisible(true);
+		
+		
 		//Not currently used
 		/*
 		//ALIGNMENT PANEL
@@ -220,6 +241,17 @@ public class StarlinkDashboard {
 			e.printStackTrace();
 		}
 		System.exit(0);
+	}
+	
+	public void showError(String error, String reason) {
+		errorLabel.setText(error);
+		errorReasonLabel.setText(reason);
+		
+		mainPanel.remove(statusPanel);
+		mainPanel.remove(disablementPanel);
+		mainPanel.add(errorPanel);
+		
+		updatePanels = true;
 	}
 	
 	public boolean isSameAlerts(ArrayList<String> newAlerts) {
@@ -360,9 +392,11 @@ public class StarlinkDashboard {
 		
 		if(disablement == DisablementCode.OKAY) {
 			mainPanel.remove(disablementPanel);
+			mainPanel.remove(errorPanel);
 			mainPanel.add(statusPanel, BorderLayout.CENTER);
 		} else {
 			mainPanel.remove(statusPanel);
+			mainPanel.remove(errorPanel);
 			mainPanel.add(disablementPanel);
 			disablementReasonLabel.setText("Reason: " + disablement.toString());
 		}
@@ -384,6 +418,7 @@ public class StarlinkDashboard {
 		
 		mainPanel.remove(statusPanel);
 		mainPanel.remove(disablementPanel);
+		mainPanel.remove(errorPanel);
 		
 		updatePanels = true;
 	}
@@ -394,19 +429,32 @@ public class StarlinkDashboard {
 			diags = client.getDishDiagnostics();
 			lastDishResponse = diags;
 		} catch(StatusRuntimeException e) {
+			//CAN'T CONNECT TO DISH
 			if(e.getMessage().contains("io exception")) {
 				setIsConnected(false);
-				
-				firstUpdate = false;
-				
-				if(updatePanels) {
-					mainPanel.revalidate();
-					mainPanel.repaint();
-					updatePanels = false;
-				}
-				
-				return;
 			}
+			//UNIMPLEMENTED
+			//Could potentially be a problem with the service plan or software/hardware not implementing the gRPC calls.
+			else if(e.getMessage().contains("UNIMPLEMENTED")) {
+				showError("UNIMPLMENTED GRPC FUNCTION", "Connected, but unable to retrieve diagnostics due to software, hardware, or service plan limitations.");
+				setIsConnected(true);
+			}
+			//ALL OTHERS
+			else {
+				JOptionPane.showMessageDialog(mainFrame, "Unhandled Exception.  See ErrorLog.log for more details", "Unhandled Exception", JOptionPane.ERROR_MESSAGE);
+				logError(e);
+				shutdown();
+			}
+			
+			firstUpdate = false;
+			
+			if(updatePanels) {
+				mainPanel.revalidate();
+				mainPanel.repaint();
+				updatePanels = false;
+			}
+			
+			return;
 		}
 		
 		//SET INFO
@@ -459,7 +507,7 @@ public class StarlinkDashboard {
 			updatePanels = false;
 		}
 		
-		lastUpdate = new Date();
+		lastUpdateTime = new Date();
 	}
 	
 	public void showResponseText() {
@@ -469,8 +517,20 @@ public class StarlinkDashboard {
 			return;
 		}
 		
-		responseTextArea.setText("Current as of " + lastUpdate + "\n\n" + client.getDishDiagnosticsString());
+		responseTextArea.setText("Current as of " + lastUpdateTime + "\n\n" + client.getDishDiagnosticsString());
 		responseTextFrame.setVisible(true);
+	}
+	
+	public void logError(Exception e) {
+		try {
+			FileOutputStream errorStream = new FileOutputStream("ErrorLog.log");
+			PrintStream ps = new PrintStream(errorStream);
+			e.printStackTrace(ps);
+			errorStream.flush();
+			errorStream.close();
+		} catch (Exception e1) {
+			JOptionPane.showMessageDialog(mainFrame, "Cannot log error message to ErrorLog.log!\nReason: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+		}
 	}
 }
 
