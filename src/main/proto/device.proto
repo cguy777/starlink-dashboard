@@ -1,3 +1,7 @@
+//I am not the copyright holder of this protocol buffers definition.
+//I include it here simply for building out the java-grpc class implmentations.
+//As of 4 Jun 25, this file originates from SpaceX's GitHub: https://github.com/SpaceExplorationTechnologies/enterprise-api/tree/master/device-api/device.proto
+
 syntax = "proto3";
 package SpaceX.API.Device;
 

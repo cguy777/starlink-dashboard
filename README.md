@@ -18,6 +18,14 @@ Dependencies are managed using Maven.
 The main package, fibrous.starlink, contains the application specific classes, with StarlinkDashboard being the main one.
 There is another package, fibrous.starlink.testing, that contains a test server that runs on port 9200 to test against and provides a simulated diagnostic response.
 When you perform mvn build, maven should automatically create the classes needed for the protobuf definition.
+I prefer Java 21, but it is not needed for this application.
+I believe this will run on Java 8 if you really want to.
 
 ## Other Resources
 This application was built using info provided from SpaceX here: https://github.com/SpaceExplorationTechnologies/enterprise-api/tree/master
+
+## Legal
+THIS APPLICATION AND ITS SOURCE IS DISTRIBUTED UNDER THE 3-CLAUSE BSD LICENSE AND COMES WITH NO WARRANTY OF ANY KIND.
+See the file "LICENSE" for more details.
+This is a 3rd-party application with no direct affiliation with SpaceX, its subsidaries, or any related parties.
+The file "device.proto" is provided by SpaceX, and can be found at the link provided in the Other Resources section.
