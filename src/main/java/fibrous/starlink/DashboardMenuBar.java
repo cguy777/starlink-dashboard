@@ -1,8 +1,11 @@
 package fibrous.starlink;
 
+import java.awt.TrayIcon.MessageType;
+
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 
 public class DashboardMenuBar extends JMenuBar {
 	
@@ -36,6 +39,7 @@ public class DashboardMenuBar extends JMenuBar {
 		//HELP MENU
 		helpMenu = new JMenu("Help");
 		aboutMenuItem = new JMenuItem("About");
+		aboutMenuItem.addActionListener((action) -> {JOptionPane.showMessageDialog(null, About.getAboutMessage(), "About", JOptionPane.INFORMATION_MESSAGE);});
 		helpMenu.add(aboutMenuItem);
 		add(helpMenu);
 	}

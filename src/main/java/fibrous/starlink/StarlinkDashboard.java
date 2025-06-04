@@ -7,6 +7,7 @@ import java.awt.GridLayout;
 import java.awt.Window.Type;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -36,6 +37,7 @@ public class StarlinkDashboard {
 	boolean prevConnectedState = false;
 	boolean switchedConnectedState = false;
 	volatile DishGetDiagnosticsResponse lastDishResponse = null;
+	Date lastUpdate = null;
 	
 	ArrayList<String> prevAlerts;
 	TestResult prevPOSTResult;
@@ -407,6 +409,8 @@ public class StarlinkDashboard {
 			mainPanel.repaint();
 			updatePanels = false;
 		}
+		
+		lastUpdate = new Date();
 	}
 	
 	public void showResponseText() {
@@ -416,7 +420,7 @@ public class StarlinkDashboard {
 			return;
 		}
 		
-		responseTextArea.setText(client.getDishDiagnosticsString());
+		responseTextArea.setText("Current as of " + lastUpdate + "\n\n" + client.getDishDiagnosticsString());
 		responseTextFrame.setVisible(true);
 	}
 }
