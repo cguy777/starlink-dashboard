@@ -1,8 +1,8 @@
 # Starlink Dashboard
 This is a simple application that displays dish diagnostics provided from the dish's local gRPC server.
 If you rely primarily on Starlink for internet, then you may not be able to log into Starlink's website to check the status of the dish if something seems wrong.
-This application aims to provide you with diagnostics info as easily as possible.
-NOTE: The model of your Starlink terminal, software version, or service plan may limit functionality of your dish's local gRPC server, thereby limiting the usefulness of this application.
+This application aims to provide you with diagnostics info as easily as possible, even if the dish is offline.
+NOTE: The model of your Starlink terminal, software version, or service plan may limit functionality of the local gRPC server on your dish, thereby limiting the usefulness of this application.
 Always test things before you need them!
 
 ## Usage
