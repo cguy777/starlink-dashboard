@@ -15,6 +15,7 @@ It will automatically request diagnostic information from the terminal every 5 s
 If you select File -> Show response text, a new window will appear that provides a formatted textual representation of the diagnostic information that was last received.  This includes everything displayed on the main display, as well as additional, and generally less relevant information in a text format.
 
 ## Building
+A compiled release, both as a JAR and a windows executable, is available if you do not wish to build from source.
 Dependencies are managed using Maven.
 The main package, fibrous.starlink, contains the application specific classes, with StarlinkDashboard being the main one.
 There is another package, fibrous.starlink.testing, that contains a test server that runs on port 9200 to test against and provides a simulated diagnostic response.
