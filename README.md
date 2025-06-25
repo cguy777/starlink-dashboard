@@ -7,12 +7,13 @@ Always test things before you need them!
 
 ## Usage
 Directly connect your computer to the modem's ethernet connection (or properly network your connection using other methods in accordance with the information below).
-The dish's diagnostic server is always at the address 192.168.100.1 using port 9200, so your computer must be on that same network.
-I'm not sure how large the 192.168.100.0 network is, but most conventions would indicate that is a /24 network.
-I personally use 192.168.100.2 for my computer's IP address without issue.
+The dish's diagnostic server is always at the address 192.168.100.1 using port 9200.
+You should be able to pull an IP address using DHCP and be able to communicate with that address, as the terminal should properly route traffic to and from that 192.168.100.0 network.
 Next, start the application.
 It will automatically request diagnostic information from the terminal every 5 seconds and update the application's main display.
 If you select File -> Show response text, a new window will appear that provides a formatted textual representation of the diagnostic information that was last received.  This includes everything displayed on the main display, as well as additional, and generally less relevant information in a text format.
+It's possible, depending on your network, that you may experience a connection issue to the terminal's local diagnostics server.
+In that case, directly connect to the starlink terminal and IP your computer to 192.168.100.2/24.
 
 ## Building
 A compiled release, both as a JAR and a windows executable, is available if you do not wish to build from source.
